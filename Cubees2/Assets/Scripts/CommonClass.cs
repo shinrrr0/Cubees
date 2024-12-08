@@ -24,6 +24,7 @@ public class CommonClass : MonoBehaviour
             if (!(obj is MovingParameters other)) return false;
             return next_position == other.next_position && next_rotation == other.next_rotation;
         }
+
         public override int GetHashCode()
         {
             return next_position.GetHashCode() ^ next_rotation.GetHashCode();

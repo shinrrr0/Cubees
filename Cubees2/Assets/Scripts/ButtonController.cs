@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using CommandsNamespace;
+using ColorsNamespace;
 
 
 public class ButtonController : MonoBehaviour
 {
     public GameObject controller;
     [SerializeField] AnimationCurve changing;
-    [HideInInspector] public float speed;
+    public float speed;
     [HideInInspector] public bool active = false;
     public float inDelay;
 
@@ -20,14 +21,15 @@ public class ButtonController : MonoBehaviour
     public bool doActivateExit = false;
 
     public AudioSource audio;
-
-    private float currentTime, totalTime;
     private Renderer rend;
-    private Color startColor = new Color(0, 1, 1, 1), endColor = new Color(1, 1, 0.5f, 1);
+
+    private ChangingColor color;
 
     void Start(){
-        totalTime = changing.keys[changing.keys.Length - 1].time;
         rend = GetComponent<Renderer>();
+
+        color = gameObject.AddComponent<ChangingColor>();
+        color.SetParameters(rend.material.color, new Color(1, 1, 0.5f, 1), changing);
     }
 
 
@@ -39,23 +41,18 @@ public class ButtonController : MonoBehaviour
         active = true;
         if (audio) audio.Play();
         StartCoroutine(ActivationCor(inDelay, collision));
-        // if (doActivateEnter) controller.GetComponent<Controller>().Action();
-        currentTime = 0;
-        startColor = new Color(0, 1, 1, 1); endColor = new Color(1, 1, 0.5f, 1);
-        StartCoroutine("ChangeColor");
+        color.ChangeColorForOpposite(gameObject);
     }
 
     void OnTriggerExit(Collider collision) {
         if (typeOfFilter == filter.cube && collision.gameObject.tag != "cube") return;
         if (typeOfFilter == filter.clone && collision.gameObject.tag != "clone") return;
         if (collision.gameObject.tag == "clone" && !collision.gameObject.GetComponent<CloneControll>().isMoving) return;
-        
+
         active = false;
         CallContext callContext = new CallContext(collision.gameObject);
         if (doActivateExit) controller.GetComponent<Controller>().Action(callContext);
-        currentTime = 0;
-        startColor = new Color(1, 1, 0.5f, 1); endColor = new Color(0, 1, 1, 1);
-        StartCoroutine("ChangeColor");
+        color.ChangeColorForOpposite(gameObject);
     }
 
     IEnumerator ActivationCor(float time, Collider collision) {
@@ -65,12 +62,42 @@ public class ButtonController : MonoBehaviour
     }
 
     void OpenTheDoor(GameObject door) => door.GetComponent<DoorController>();
+}
 
-    IEnumerator ChangeColor()
+
+namespace ColorsNamespace{
+    public class ChangingColor : MonoBehaviour
     {
-        yield return null;
-        currentTime += Time.deltaTime * speed;
-        rend.material.color = Color.Lerp(startColor, endColor, changing.Evaluate(currentTime));
-        if (currentTime < totalTime) StartCoroutine("ChangeColor");
+        private Color firstColor, secondColor;
+        private AnimationCurve curve;
+        private int currentCoroutineIndex = 0;
+        private float currentTime, totalTime;
+
+        public ChangingColor(){}
+
+        public ChangingColor(Color startColor, Color endColor, AnimationCurve _curve) => SetParameters(startColor, endColor, _curve);
+
+        public void SetParameters(Color startColor, Color endColor, AnimationCurve _curve){
+            firstColor = startColor; secondColor = endColor;
+            curve = _curve;
+            totalTime = curve.keys[curve.keys.Length - 1].time;
+            currentTime = totalTime;
+        }
+
+        public void ChangeColorForOpposite(GameObject objectToChange){
+            currentCoroutineIndex++;
+            currentTime = Mathf.Clamp(totalTime - currentTime, 0, totalTime);
+            StartCoroutine(ChangingColorCoroutine(currentCoroutineIndex, objectToChange, firstColor, secondColor));
+            (firstColor, secondColor) = (secondColor, firstColor);
+        }
+
+        IEnumerator ChangingColorCoroutine(int index, GameObject objectToChange, Color from, Color to){
+            yield return null;
+            if (index == currentCoroutineIndex && currentTime <= totalTime && currentTime >= 0){
+                currentTime += Time.deltaTime;
+                objectToChange.GetComponent<Renderer>().material.color = Color.Lerp(from, to, curve.Evaluate(currentTime));
+                StartCoroutine(ChangingColorCoroutine(index, objectToChange, from, to));
+            }
+        }
     }
 }

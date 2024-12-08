@@ -90,8 +90,18 @@ public class Moving : CommonClass
     }
 
     void move(MovingParameters par){
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position + par.getPos(), Vector3.down, out hit, 1f) && !Physics.Raycast(transform.position + par.getPos() + new Vector3(0, 1f, 0), Vector3.down, out hit, 1f)) {
+        RaycastHit hitForDown, hitFor, hitDown;
+        if (Physics.Raycast(transform.position + par.getPos(), Vector3.down, out hitForDown, 1f, 1, QueryTriggerInteraction.Ignore) && !Physics.Raycast(transform.position, par.getPos(), out hitFor, 1f, 1, QueryTriggerInteraction.Ignore)) {
+            Physics.Raycast(transform.position, Vector3.down, out hitDown, 1f, 1, QueryTriggerInteraction.Ignore);
+            BlockController blockControllerDown = hitDown.transform.gameObject.GetComponent<BlockController>();
+            BlockController blockControllerForDown = hitForDown.transform.gameObject.GetComponent<BlockController>();
+
+            bool condition1 = blockControllerDown == null && (blockControllerForDown == null || blockControllerForDown.GetMoving().magnitude == 0);
+            bool condition2 = blockControllerForDown == null && (blockControllerDown == null || blockControllerDown.GetMoving().magnitude == 0);
+            bool condition3 = blockControllerDown && blockControllerForDown && blockControllerDown.GetMoving() == blockControllerForDown.GetMoving();
+
+            if (!(condition1 || condition2 || condition3)) return;
+
             if (isRecording) {
                 moves.Add(par);
                 delays.Add(delay);
