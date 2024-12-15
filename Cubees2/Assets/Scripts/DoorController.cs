@@ -5,7 +5,7 @@ using UnityEngine;
 public class DoorController : MonoBehaviour
 {
     [SerializeField] AnimationCurve changing;
-    [HideInInspector] public Color startColor = new Color(1, 1, 1, 0), endColor = new Color(1, 1, 1, 1);
+    private Color startColor = new Color(0.55f, 0.86f, 0.94f, 0), endColor = new Color(0.55f, 0.86f, 0.94f, 1);
     private Renderer rend;
     private float currentTime, totalTime;
     private bool isChangingColor = false;
