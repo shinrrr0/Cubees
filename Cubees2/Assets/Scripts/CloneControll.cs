@@ -11,7 +11,7 @@ public class CloneControll : CommonClass
     [HideInInspector] public List<float> delays = new List<float>();
     [HideInInspector] public GameObject cube;
     [HideInInspector] public bool isMoving = false;
-    private Color startColor = new Color(1, 1, 1, 0.5f), endColor = new Color(1, 1, 1, 1f);
+    private Color startColor = new Color(0.8f, 0.8f, 0.8f, 0.5f), endColor = new Color(0.8f, 0.8f, 0.8f, 1f);
     private float currentTime = 0, totalTime, colorCurrentTime = 0, colorTotalTime;
     private Quaternion rot1, rot2;
     private int i = 0, factor = -1;
@@ -19,13 +19,19 @@ public class CloneControll : CommonClass
     private Renderer rend;
     private bool isChangingColor = false;
 
-    void Start()
-    {
-        rend = GetComponent<Renderer>();
+    private Material opaqueMaterial, fadeMaterial;
+
+    void Start(){
         colorTotalTime = changing.keys[changing.keys.Length - 1].time;
         colorCurrentTime = colorTotalTime;
         startPosition = transform.position;
         // startColor = new Color(1, 1, 1, 0.5f);
+    }
+
+    void Awake(){
+        rend = GetComponent<Renderer>();
+        opaqueMaterial = Resources.Load("Materials/CloneMaterials/Opaque") as Material;
+        fadeMaterial = Resources.Load("Materials/CloneMaterials/Fade") as Material;
     }
 
     public void setParameters(List<MovingParameters> _moves, List<float> _delays, AnimationCurve _movingCurve){
@@ -94,6 +100,7 @@ public class CloneControll : CommonClass
 
     public void ChangeColor(){
         factor *= -1;
+        if (factor == -1) rend.material = fadeMaterial;
         if (!isChangingColor) StartCoroutine(ChangeColorCor());
         gameObject.GetComponent<Collider>().enabled = !gameObject.GetComponent<Collider>().enabled;
     }
@@ -104,7 +111,11 @@ public class CloneControll : CommonClass
         colorCurrentTime += factor * Time.deltaTime;
         rend.material.color = Color.Lerp(startColor, endColor, changing.Evaluate(colorCurrentTime));
         if (colorCurrentTime > 0 && colorCurrentTime < colorTotalTime) StartCoroutine(ChangeColorCor());
-        else { isChangingColor = false; colorCurrentTime = Mathf.Clamp(colorCurrentTime, 0, colorTotalTime); }
+        else { 
+            isChangingColor = false;
+            colorCurrentTime = Mathf.Clamp(colorCurrentTime, 0, colorTotalTime);
+            if (factor == 1) rend.material = opaqueMaterial;
+        }
     }
 
     void OnCollisionEnter(Collision collision) { 

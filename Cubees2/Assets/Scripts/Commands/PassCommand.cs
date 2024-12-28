@@ -4,7 +4,7 @@ using UnityEngine;
 using CommandsNamespace;
 
 
-public class PassCommand : MonoBehaviour
+public class PassCommand : MonoBehaviour, IControllerCommand
 {
     public void Act(Context context) {}
 }
