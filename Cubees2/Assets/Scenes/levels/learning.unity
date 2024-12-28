@@ -1327,7 +1327,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &70444704
 Transform:
   m_ObjectHideFlags: 0
@@ -6251,6 +6251,7 @@ MonoBehaviour:
   isMoving: 0
   canMove: 1
   canStartRecording: 1
+  canEndRecording: 1
   recPicture: {fileID: 851350850}
   currentTime: 0
 --- !u!54 &364242661

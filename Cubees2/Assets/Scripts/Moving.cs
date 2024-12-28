@@ -77,7 +77,6 @@ public class Moving : CommonClass
             }
             else if (canEndRecording)
             {
-                print(1);
                 // Finish
                 delays.Add(delay);
                 GameObject newClone = Instantiate(clone, startPosition, Quaternion.identity, allClones.transform);
