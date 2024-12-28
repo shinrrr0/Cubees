@@ -14,7 +14,9 @@ public class Moving : CommonClass
     [HideInInspector] public bool isRecording = false;
     [HideInInspector] public bool isMoving = false, canMove = true;
     [HideInInspector] public MovingParameters moveRight, moveLeft, moveForward, moveBackward, bufferAction, currentAction;
-    
+    [HideInInspector] public bool canStartRecording = true;
+    [HideInInspector] public bool canEndRecording = true;
+
     public GameObject recPicture;
 
     private AudioSource sound;
@@ -60,22 +62,29 @@ public class Moving : CommonClass
 
         if (Input.GetKeyDown(KeyCode.E) && !isMoving)
         {
-            isRecording = !isRecording;
+            if (!canStartRecording && !isRecording == true) {delay = 0;}
+            else {
+                isRecording = !isRecording;
+            }
             if (isRecording)
             {
+                // Start
                 if (recPicture && !recPicture.GetComponent<RecUI>().isAnimationPlaying) recPicture.GetComponent<RecUI>().startChangingColor();
                 moves = new List<MovingParameters>();
                 delays = new List<float>();
                 startPosition = transform.position;
                 foreach (Transform i in allClones.transform) i.GetComponent<CloneControll>().ChangeColor();
             }
-            else
+            else if (canEndRecording)
             {
+                print(1);
+                // Finish
                 delays.Add(delay);
                 GameObject newClone = Instantiate(clone, startPosition, Quaternion.identity, allClones.transform);
                 newClone.GetComponent<CloneControll>().setParameters(moves, delays, movingCurve);
                 newClone.GetComponent<Collider>().enabled = false;
                 foreach (Transform i in allClones.transform) i.GetComponent<CloneControll>().ChangeColor();
+                
             }
             delay = 0;
         }
