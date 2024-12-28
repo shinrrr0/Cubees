@@ -29,8 +29,8 @@ public class RecUI : MonoBehaviour
 
     void Start()
     {
-        startColor = new Color(0, 0, 1, 0);
-        endColor = new Color(0, 0, 1, 1);
+        startColor = new Color(1, 0.129f, 0.129f, 0);
+        endColor = new Color(1, 0.129f, 0.129f, 1);
         sound = gameObject.GetComponent<AudioSource>();
         nfi = new NumberFormatInfo();
         nfi.NumberDecimalSeparator = ":";
