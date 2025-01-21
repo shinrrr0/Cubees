@@ -7,6 +7,7 @@ public class DoActionAfterTimeCommand : MonoBehaviour, IControllerCommand
 {
     public float time;
     public GameObject controller;
+    [HideInInspector] public bool stopAction = false;
 
     public void Act(Context context){
         StartCoroutine(Delay(context));
@@ -14,7 +15,9 @@ public class DoActionAfterTimeCommand : MonoBehaviour, IControllerCommand
 
     IEnumerator Delay(Context context){
         yield return new WaitForSeconds(time);
-        CallContext callContext = new CallContext(context.objectForActing);
-        controller.GetComponent<Controller>().Action(callContext);
+        if (!stopAction){
+            controller.GetComponent<Controller>().Action(context);
+        }
+        else stopAction = false;
     }
 }

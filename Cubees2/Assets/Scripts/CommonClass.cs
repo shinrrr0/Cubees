@@ -34,4 +34,11 @@ public class CommonClass : MonoBehaviour
     public float GetHeight(AnimationCurve curve, float x){
         return Mathf.Sqrt(0.5f - Mathf.Pow(curve.Evaluate(x) - 0.5f, 2f)) - 0.5f;
     }
+
+    public void SetParentForMoving(Vector3 delta){
+        RaycastHit hit;
+        bool res = Physics.Raycast(transform.position + delta, Vector3.down, out hit, 1f, 1, QueryTriggerInteraction.Ignore);
+        if (!res) return;
+        transform.SetParent(hit.transform);
+    }
 }

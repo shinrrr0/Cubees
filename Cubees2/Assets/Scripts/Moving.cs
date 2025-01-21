@@ -7,8 +7,8 @@ using DataSpace;
 public class Moving : CommonClass
 {
     public AnimationCurve movingCurve;
-    [HideInInspector] public GameObject clone, allClones;
-
+    [HideInInspector] public GameObject clone;
+    [HideInInspector] public List<GameObject> allClones = new List<GameObject>();
     [HideInInspector] public List<MovingParameters> moves = new List<MovingParameters>();
     [HideInInspector] public List<float> delays = new List<float>();
     [HideInInspector] public bool isRecording = false;
@@ -73,17 +73,17 @@ public class Moving : CommonClass
                 moves = new List<MovingParameters>();
                 delays = new List<float>();
                 startPosition = transform.position;
-                foreach (Transform i in allClones.transform) i.GetComponent<CloneControll>().ChangeColor();
+                foreach (GameObject i in allClones) i.GetComponent<CloneControll>().ChangeColor();
             }
             else if (canEndRecording)
             {
                 // Finish
                 delays.Add(delay);
-                GameObject newClone = Instantiate(clone, startPosition, Quaternion.identity, allClones.transform);
+                GameObject newClone = Instantiate(clone, startPosition, Quaternion.identity);
                 newClone.GetComponent<CloneControll>().setParameters(moves, delays, movingCurve);
                 newClone.GetComponent<Collider>().enabled = false;
-                foreach (Transform i in allClones.transform) i.GetComponent<CloneControll>().ChangeColor();
-                
+                allClones.Add(newClone);
+                foreach (GameObject i in allClones) i.GetComponent<CloneControll>().ChangeColor();
             }
             delay = 0;
         }
@@ -119,6 +119,7 @@ public class Moving : CommonClass
             sound.Play();
             isMoving = true;
 
+            SetParentForMoving(par.getPos());
             StartCoroutine(MovingCor(new Vector3(0, 0, 0), par.getPos(),
              transform.rotation, Quaternion.Euler(par.getRot().x, par.getRot().y, par.getRot().z)));
         }

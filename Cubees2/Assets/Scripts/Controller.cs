@@ -8,14 +8,15 @@ using CommandsNamespace;
 namespace CommandsNamespace {
     public struct Context{
         public GameObject objectForActing;
-
-        public Context(GameObject _objectForActing) { objectForActing = _objectForActing; }
-    }
-
-    public struct CallContext{
         public GameObject causingObject;
 
-        public CallContext(GameObject _causingObject) { causingObject = _causingObject; }
+        public Context(GameObject _objectForActing=null, GameObject _causingObject=null) : this() { 
+            if (_objectForActing) this.objectForActing = _objectForActing;
+            if (_causingObject) this.causingObject = _causingObject;
+        }
+
+        public void SetCausingObject(GameObject _causingObject){ causingObject = _causingObject; }
+        public void SetObjectForActing(GameObject _objectForActing){ objectForActing = _objectForActing; }
     }
 }
 
@@ -24,13 +25,23 @@ public class Controller : MonoBehaviour
 {
 
     public List<GameObject> commands = new List<GameObject>();
-	[HideInInspector] public int a = 0;
+    public int a = 0;
+    public bool toDoActionAtTheStartTime = false;
 
-    public void Action(CallContext callContext){
-        Context context = new Context(callContext.causingObject);
-        commands[a].GetComponent<IControllerCommand>().Act(context);
+    public Dictionary<string, int> variables = new Dictionary<string, int>();
+
+    void Start(){
+        if (toDoActionAtTheStartTime){
+            Action(new Context(_causingObject: gameObject));
+        } 
+    }
+
+    public void Action(Context context){
+        print(context.causingObject);
         a++;
         if (a >= commands.Count) a = 0;
+        context.SetCausingObject(gameObject);
+        commands[(a != 0) ? (a - 1) : (commands.Count - 1)].GetComponent<IControllerCommand>().Act(context);
     }
 
     public void changeA(int n) {
@@ -71,15 +82,15 @@ public class Controller : MonoBehaviour
     // void Pass() {}
 
     // void SetActivePlatform(string name, string _bool) {
-    // 	if (_bool == "true") {
-    // 		if (!GameObject.Find(name).GetComponent<MovePlatforms>().isMoving) {
-    // 			GameObject.Find(name).GetComponent<MovePlatforms>().StartCoroutine("Move");
-    // 		}
-    // 		GameObject.Find(name).GetComponent<MovePlatforms>().active = true;
-    // 	}
-    // 	else if (_bool == "false") {
-    // 		GameObject.Find(name).GetComponent<MovePlatforms>().active = false;
-    // 	}
+    //  if (_bool == "true") {
+    //      if (!GameObject.Find(name).GetComponent<MovePlatforms>().isMoving) {
+    //          GameObject.Find(name).GetComponent<MovePlatforms>().StartCoroutine("Move");
+    //      }
+    //      GameObject.Find(name).GetComponent<MovePlatforms>().active = true;
+    //  }
+    //  else if (_bool == "false") {
+    //      GameObject.Find(name).GetComponent<MovePlatforms>().active = false;
+    //  }
     // }
 
     // void Transfer(int n, int count) {

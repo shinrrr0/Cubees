@@ -50,15 +50,15 @@ public class ButtonController : MonoBehaviour
         if (collision.gameObject.tag == "clone" && !collision.gameObject.GetComponent<CloneControll>().isMoving) return;
 
         active = false;
-        CallContext callContext = new CallContext(collision.gameObject);
-        if (doActivateExit) controller.GetComponent<Controller>().Action(callContext);
+        Context context = new Context(_objectForActing: collision.gameObject);
+        if (doActivateExit) controller.GetComponent<Controller>().Action(context);
         color.ChangeColorForOpposite(gameObject);
     }
 
     IEnumerator ActivationCor(float time, Collider collision) {
         yield return new WaitForSeconds(time);
-        CallContext callContext = new CallContext(collision.gameObject);
-        if (doActivateEnter && active) controller.GetComponent<Controller>().Action(callContext);
+        Context context = new Context(_objectForActing: collision.gameObject);
+        if (doActivateEnter && active) controller.GetComponent<Controller>().Action(context);
     }
 
     void OpenTheDoor(GameObject door) => door.GetComponent<DoorController>();

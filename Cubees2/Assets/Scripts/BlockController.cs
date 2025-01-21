@@ -19,8 +19,6 @@ public class BlockController : MonoBehaviour
     {
         moving = transform.position - lastPos;
         lastPos = transform.position;
-
-        // if (a) print(moving);
     }
 
     public Vector3 GetMoving(){

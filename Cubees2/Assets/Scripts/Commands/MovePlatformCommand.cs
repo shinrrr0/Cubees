@@ -6,9 +6,11 @@ using CommandsNamespace;
 public class MovePlatformCommand : MonoBehaviour, IControllerCommand
 {
     public GameObject platform;
+    public enum _type {start=1, stop=2};
+    public _type whatToDo;
 
     public void Act(Context context){
-        CallContext callContext = new CallContext(context.objectForActing);
-        platform.GetComponent<PlatformController>().StartMoving();
+        if (whatToDo == _type.start) platform.GetComponent<PlatformController>().StartMoving();
+        else {platform.GetComponent<PlatformController>().StopMoving();}
     }
 }

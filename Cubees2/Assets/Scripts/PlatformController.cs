@@ -14,29 +14,31 @@ public class PlatformController : MonoBehaviour
 
     private int currentTarget = 1;
     private float currentTime = 0f;
+    private Vector3 delta;
 
-    void Start()
-    {
-        StartMoving();
-    }
+    private Vector3 startPoint, endPoint;
+    private float totalTime;
 
-    void Update()
-    {
-        
-    }
+    private bool isActive = false, wasBroken = false;
 
     public void StartMoving(){
-        AnimationCurve currCurve;
-        if (currentTarget == 0) currCurve = curves[curves.Count - 1];
-        else currCurve = curves[currentTarget - 1];
-        StartCoroutine(MovingCor(transform.position, route[currentTarget].position, currCurve.keys[currCurve.keys.Length - 1].time));
+        if (!wasBroken){
+            AnimationCurve currCurve;
+            if (currentTarget == 0) currCurve = curves[curves.Count - 1];
+            else currCurve = curves[currentTarget - 1];
+            startPoint = transform.position; endPoint = route[currentTarget].position;
+            totalTime = currCurve.keys[currCurve.keys.Length - 1].time;
+        }
+
+        isActive = true;
+        StartCoroutine(MovingCor());
     }
 
     public void StopMoving(){
-
+        isActive = false;
     }
 
-    IEnumerator MovingCor(Vector3 startPoint, Vector3 endPoint, float totalTime){
+    IEnumerator MovingCor(){
         yield return null;
         currentTime += Time.deltaTime;
 
@@ -46,18 +48,20 @@ public class PlatformController : MonoBehaviour
 
         transform.position = Vector3.Lerp(startPoint, endPoint, currCurve.Evaluate(currentTime));
 
-        if (currentTime < totalTime){
-            StartCoroutine(MovingCor(startPoint, endPoint, totalTime));
+        if (currentTime < totalTime && isActive){
+            StartCoroutine(MovingCor());
         }
-        else{
+        else if (!isActive) wasBroken = true;
+        else if (isActive){
             transform.position = endPoint;
+            wasBroken = false;
             currentTime = 0;
             currentTarget++;
             if (currentTarget >= route.Count) currentTarget = 0;
 
             if (toSendSingal){
-                CallContext callContext = new CallContext(gameObject);
-                controller.GetComponent<Controller>().Action(callContext);
+                Context context = new Context(_objectForActing: gameObject);
+                controller.GetComponent<Controller>().Action(context);
             }
         }
     }
